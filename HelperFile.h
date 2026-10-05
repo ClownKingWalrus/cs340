@@ -10,7 +10,7 @@ std::array<std::string, 5> loadEnv() {
     std::string pgDatabase;
     std::string pgUser;
     std::string pgPass;
-    std::ifstream file("../../.env");
+    std::ifstream file("../../.env"); // put your .env file in same dir as cpp and .h the ../ is required due to build file being being its own entity
 
     if (!file.is_open()) {
         std::cerr << "Error: Could not open the file!" << std::endl;
@@ -19,7 +19,7 @@ std::array<std::string, 5> loadEnv() {
 
     std::string line;
     int i = 0;
-    // 3. Read line by line until the end of the file (apprently size_t is required cause npos is a massive number)
+    // Read line by line until the end of the file (apprently size_t is required cause npos is a massive number)
     while (std::getline(file, line)) {
         size_t pos = line.find('=');
 
