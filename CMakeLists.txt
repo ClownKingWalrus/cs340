@@ -19,6 +19,9 @@ set(PROJECT_SOURCES
         mainwindow.h
         mainwindow.ui
         HelperFile.h
+        email.h
+        databasehandler.h
+        databasehandler.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

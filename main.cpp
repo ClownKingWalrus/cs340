@@ -30,5 +30,7 @@ int main(int argc, char *argv[])
 
     qDebug() << "Successfully connected!";
 
+    MainWindow w;
+
     return app.exec();
 }
