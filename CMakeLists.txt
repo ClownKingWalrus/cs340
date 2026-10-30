@@ -19,6 +19,7 @@ set(PROJECT_SOURCES
         mainwindow.h
         mainwindow.ui
         HelperFile.h
+        picosha2.h
         email.h
         databasehandler.h
         databasehandler.cpp
