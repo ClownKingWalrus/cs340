@@ -18,5 +18,7 @@ int main(int argc, char *argv[])
 
     Utils::Close();
 
+    MainWindow w;
+
     return app.exec();
 }

@@ -20,6 +20,9 @@ set(PROJECT_SOURCES
         mainwindow.ui
         HelperFile.h
         picosha2.h
+        email.h
+        databasehandler.h
+        databasehandler.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
