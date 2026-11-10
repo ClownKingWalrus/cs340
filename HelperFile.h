@@ -60,7 +60,7 @@ public:
         }
 
         //build the items to be returned
-        QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
+        QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL", connectionName); //makes the connection name QPSQL
 
         db.setHostName(QString::fromStdString(pgHostName));
         db.setPort(std::stoi(pgPort));
@@ -97,7 +97,7 @@ public:
         qDebug() << "PostgreSQL connection closed!";
     }
 
-    static void CreateProfile(std::string UserName, std::string UserPassword, std::string Email, QSqlQuery db) {
+    static void CreateProfile(std::string UserName, std::string UserPassword, std::string Email) {
 
         try {
             //create the query
@@ -117,14 +117,13 @@ public:
             std::string hashedPass = picosha2::hash256_hex_string((UserPassword+salt));
             UserPassword.clear(); //no except this cannot fail
 
-            query.prepare("INSERT INTO User (username, datejoined, password, salt)"
-                          "VALUES (?, ?, ?, ?)");
+            query.prepare("INSERT INTO USER (username, datejoined, password, salt, email)"
+                          "VALUES (?, ?, ?, ?, ?)");
             query.bindValue(0, QString::fromStdString(UserName));
             query.bindValue(1, QDateTime::currentDateTimeUtc());
             query.bindValue(2, QString::fromStdString(hashedPass));
             query.bindValue(3, QString::fromStdString(salt));
-
-            query.exec();
+            query.bindValue(3, QString::fromStdString(Email));
 
             if (!query.exec()) {
                 Utils::PrintSqlError(query.lastError());
@@ -144,6 +143,92 @@ public:
         qDebug() << "Database Error:" << error.databaseText();
         qDebug() << "Driver Error:" << error.driverText();
         qDebug() << "Error Code:" << error.nativeErrorCode();
+    }
+
+    static bool UsernameChecker(std::string UN) {
+
+
+        //set Username
+        std::string UserName = UN;
+
+        if (UserName == "") {
+            return false; //bad string
+        }
+
+        try {
+            QSqlDatabase db = Utils::GetConn();
+            QSqlQuery query(db);
+
+            //this statement should be optimized this is essentially a select * statement
+            query.prepare("SELECT 1 FROM USER WHERE LOWER(username) = LOWER(?) LIMIT 1"); //apprently select 1 just checks whether it exist or not rather than retrieving the whole user db
+            query.addBindValue(QString::fromStdString(UserName));
+
+            if (!query.exec()) {
+                Utils::PrintSqlError(query.lastError());
+                return false;
+            }
+
+            return query.next();
+        }
+        catch (const std::exception& e) {
+                std::cerr << "C++ error: " << e.what() << std::endl;
+                return false;
+            }
+        return false; //assuming somthing failed we will return false
+    }
+
+    static bool EmailChecker(std::string EM) {
+
+
+        //initlize user and pass
+        std::string Email = EM;
+
+        if (Email == "") {
+            return false; //bad string
+        }
+
+        try {
+            QSqlDatabase db = Utils::GetConn();
+            QSqlQuery query(db);
+
+            //this statement should be optimized this is essentially a select * statement
+            query.prepare("SELECT 1 FROM USER WHERE LOWER(email) = LOWER(?) LIMIT 1"); //apprently select 1 just checks whether it exist or not rather than retrieving the whole user db
+            query.addBindValue(QString::fromStdString(Email));
+
+            if (!query.exec()) {
+                Utils::PrintSqlError(query.lastError());
+                return false;
+            }
+
+            return query.next();
+        }
+        catch (const std::exception& e) {
+            std::cerr << "C++ error: " << e.what() << std::endl;
+            return false;
+        }
+        return false; //assuming somthing failed we will return false
+
+
+        try {
+            QSqlDatabase db = Utils::GetConn();
+            QSqlQuery query(db);
+
+            //this statement should be optimized this is essentially a select * statement
+            query.prepare("SELECT 1 FROM email WHERE LOWER(email) = LOWER(?) LIMIT 1"); //apprently select 1 just checks whether it exist or not rather than retrieving the whole user db
+            query.addBindValue(QString::fromStdString(Email));
+
+            if (!query.exec()) {
+                Utils::PrintSqlError(query.lastError());
+                return false;
+            }
+
+            return query.next();
+        }
+        catch (const std::exception& e) {
+            std::cerr << "C++ error: " << e.what() << std::endl;
+            return false;
+        }
+        return false; //assuming somthing failed we will return false
     }
 
 

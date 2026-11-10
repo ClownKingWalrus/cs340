@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "signup.h"
 #include "HelperFile.h"
 #include <QApplication>
 
@@ -9,16 +10,17 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     if (!Utils::InitSql()) {
-        return 1;
+        std::cout << "Sql is down\n";
+        // return 1;
     }
 
-    MainWindow window;
+    SignUp window;
 
     window.show();
 
-    Utils::Close();
 
-    MainWindow w;
+
+    Utils::Close();
 
     return app.exec();
 }
