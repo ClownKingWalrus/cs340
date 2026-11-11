@@ -117,13 +117,13 @@ public:
             std::string hashedPass = picosha2::hash256_hex_string((UserPassword+salt));
             UserPassword.clear(); //no except this cannot fail
 
-            query.prepare("INSERT INTO USER (username, datejoined, password, salt, email)"
+            query.prepare("INSERT INTO public.\"User\" (username, datejoined, password, salt, email)" // public.\"User\" is required since in psql its a keyword
                           "VALUES (?, ?, ?, ?, ?)");
             query.bindValue(0, QString::fromStdString(UserName));
             query.bindValue(1, QDateTime::currentDateTimeUtc());
             query.bindValue(2, QString::fromStdString(hashedPass));
             query.bindValue(3, QString::fromStdString(salt));
-            query.bindValue(3, QString::fromStdString(Email));
+            query.bindValue(4, QString::fromStdString(Email));
 
             if (!query.exec()) {
                 Utils::PrintSqlError(query.lastError());
@@ -147,7 +147,7 @@ public:
 
     static bool UsernameChecker(std::string UN) {
 
-
+        std::cout << "in usernameCheck\n";
         //set Username
         std::string UserName = UN;
 
@@ -160,7 +160,13 @@ public:
             QSqlQuery query(db);
 
             //this statement should be optimized this is essentially a select * statement
-            query.prepare("SELECT 1 FROM USER WHERE LOWER(username) = LOWER(?) LIMIT 1"); //apprently select 1 just checks whether it exist or not rather than retrieving the whole user db
+            if (!query.prepare( //apprently select 1 just checks whether it exist or not rather than retrieving the whole user db
+                    "SELECT 1 FROM public.\"User\" WHERE LOWER(username) = LOWER(?) LIMIT 1"
+                    )) {
+                qDebug() << "UsernameChecker: Prepare failed";
+                Utils::PrintSqlError(query.lastError());
+                return false;
+            }
             query.addBindValue(QString::fromStdString(UserName));
 
             if (!query.exec()) {
@@ -179,7 +185,6 @@ public:
 
     static bool EmailChecker(std::string EM) {
 
-
         //initlize user and pass
         std::string Email = EM;
 
@@ -191,11 +196,18 @@ public:
             QSqlDatabase db = Utils::GetConn();
             QSqlQuery query(db);
 
-            //this statement should be optimized this is essentially a select * statement
-            query.prepare("SELECT 1 FROM USER WHERE LOWER(email) = LOWER(?) LIMIT 1"); //apprently select 1 just checks whether it exist or not rather than retrieving the whole user db
+            if (!query.prepare(
+                    "SELECT 1 FROM public.\"User\" WHERE LOWER(email) = LOWER(?) LIMIT 1"
+                    )) {
+                qDebug() << "Prepare failed:";
+                Utils::PrintSqlError(query.lastError());
+                return false;
+            }
+
             query.addBindValue(QString::fromStdString(Email));
 
             if (!query.exec()) {
+                qDebug() << "Execute failed:";
                 Utils::PrintSqlError(query.lastError());
                 return false;
             }
@@ -206,30 +218,7 @@ public:
             std::cerr << "C++ error: " << e.what() << std::endl;
             return false;
         }
-        return false; //assuming somthing failed we will return false
 
-
-        try {
-            QSqlDatabase db = Utils::GetConn();
-            QSqlQuery query(db);
-
-            //this statement should be optimized this is essentially a select * statement
-            query.prepare("SELECT 1 FROM email WHERE LOWER(email) = LOWER(?) LIMIT 1"); //apprently select 1 just checks whether it exist or not rather than retrieving the whole user db
-            query.addBindValue(QString::fromStdString(Email));
-
-            if (!query.exec()) {
-                Utils::PrintSqlError(query.lastError());
-                return false;
-            }
-
-            return query.next();
-        }
-        catch (const std::exception& e) {
-            std::cerr << "C++ error: " << e.what() << std::endl;
-            return false;
-        }
         return false; //assuming somthing failed we will return false
     }
-
-
 }; //End of class Utils

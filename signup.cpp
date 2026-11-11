@@ -80,7 +80,7 @@ void SignUp::on_SignUp2_clicked()
         return;
     }
 
-    if (!Utils::EmailChecker(ui->lineEditEmail->text().toStdString())) {
+    if (Utils::EmailChecker(ui->lineEditEmail->text().toStdString())) {
         QMessageBox* box = new QMessageBox();
         box->setText("Email already in use");
         box->show();
@@ -88,7 +88,7 @@ void SignUp::on_SignUp2_clicked()
     }
 
     QMessageBox* box = new QMessageBox();
-    box->setText("Attempting to create Paxel Account");
+    box->setText("Attempting to create Email Account");
     box->show();
 
     Utils::CreateProfile(ui->lineEditUserName->text().toStdString(), ui->lineEditPassword->text().toStdString(), ui->lineEditEmail->text().toStdString());
@@ -105,8 +105,6 @@ void SignUp::on_SignUp2_clicked()
         box->show();
         return;
     }
-
-
     return;
 }
 

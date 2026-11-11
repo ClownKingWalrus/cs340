@@ -18,9 +18,11 @@ int main(int argc, char *argv[])
 
     window.show();
 
+    // Blocks here while the application is running
+    int result = app.exec();
 
 
     Utils::Close();
 
-    return app.exec();
+    return result;
 }
